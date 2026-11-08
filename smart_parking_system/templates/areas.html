@@ -1,0 +1,209 @@
+
+{% extends "base.html" %}
+
+{% block title %}Parking Areas | Smart Parking System{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Parking Areas</h1>
+        <p>View and manage parking locations.</p>
+    </div>
+</div>
+
+<!-- Add Parking Area: Administrator Only -->
+
+{% if session.get('role') == 'Administrator' %}
+
+<section class="content-section">
+
+    <div class="section-header">
+        <h2>Add New Parking Area</h2>
+    </div>
+
+    <div class="form-card">
+
+        <form method="POST" action="{{ url_for('areas') }}">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="area_name">Area Name</label>
+                    <input
+                        type="text"
+                        id="area_name"
+                        name="area_name"
+                        placeholder="Example: Ground Floor"
+                        maxlength="100"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        placeholder="Enter parking location"
+                        maxlength="255"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+    <label for="capacity">Total Parking Capacity</label>
+    <input
+        type="number"
+        id="capacity"
+        name="capacity"
+        placeholder="Example: 50"
+        min="1"
+        required
+    >
+</div>
+
+                <div class="form-group full-width">
+                    <label for="description">Description</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="3"
+                        placeholder="Enter area description"
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Add Parking Area
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- Parking Areas List -->
+
+<section class="content-section">
+
+    <div class="section-header">
+        <h2>Available Parking Areas</h2>
+        <span class="record-count">
+            Total Areas: {{ areas|length }}
+        </span>
+    </div>
+
+    {% if areas %}
+
+    <div class="area-grid">
+
+        {% for area in areas %}
+
+        <div class="area-card">
+
+            <div class="area-card-header">
+                <div class="area-icon">P</div>
+                <span class="status-badge status-available">
+                    Active
+                </span>
+            </div>
+
+            <h3>{{ area.Area_Name }}</h3>
+
+            <p class="area-location">
+                {{ area.Location }}
+            </p>
+
+            {% if area.Description %}
+                <p class="area-description">
+                    {{ area.Description }}
+                </p>
+            {% endif %}
+
+            <div class="area-stats">
+                <div>
+                   <span>Maximum Capacity</span>
+                   <strong>{{ area.Capacity }}</strong>
+                </div>
+                <div>
+                   <span>Remaining Capacity</span>
+                   <strong>{{ area.Remaining_Slots }}</strong>
+                </div>
+                <div>
+                    <span>Total Slots</span>
+                    <strong>{{ area.Total_Slots or 0 }}</strong>
+                </div>
+
+                <div>
+                    <span>Available Slots</span>
+                    <strong>{{ area.Available_Slots or 0 }}</strong>
+                </div>
+
+            </div>
+            {% if session.get('role') == 'Administrator' %}
+
+<form
+    method="POST"
+    action="{{ url_for('update_area_capacity', area_id=area.Area_ID) }}"
+    class="form-card"
+    style="margin-bottom: 15px;"
+>
+
+    <div class="form-group">
+        <label for="capacity_{{ area.Area_ID }}">Update Maximum Capacity</label>
+
+        <input
+            type="number"
+            id="capacity_{{ area.Area_ID }}"
+            name="capacity"
+            value="{{ area.Capacity }}"
+            min="{{ area.Total_Slots or 1 }}"
+            required
+        >
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-full">
+        Update Capacity
+    </button>
+
+</form>
+
+{% endif %}
+
+            <a
+                href="{{ url_for('slots') }}"
+                class="btn btn-outline btn-full"
+            >
+                View Parking Slots
+            </a>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+        <h3>No Parking Areas Found</h3>
+        <p>
+            {% if session.get('role') == 'Administrator' %}
+                Add your first parking area using the form above.
+            {% else %}
+                No parking areas have been added yet.
+            {% endif %}
+        </p>
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

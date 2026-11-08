@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Parking Records | Smart Parking System{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Parking Records</h1>
+        <p>View vehicle entry, exit, and parking history.</p>
+    </div>
+</div>
+
+<section class="content-section">
+    <div class="section-header">
+        <h2>All Parking Records</h2>
+        <span class="record-count">
+            Total Records: {{ records|length }}
+        </span>
+    </div>
+
+    {% if records %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Record ID</th>
+                    <th>Vehicle Number</th>
+                    <th>Parking Slot</th>
+                    <th>Parking Area</th>
+                    <th>Entry Time</th>
+                    <th>Exit Time</th>
+                    <th>Duration (Hours)</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    {% if session.get('role') == 'Administrator' %}
+                    <th>Owner</th>
+                    {% endif %}
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.Record_ID }}</td>
+
+                    <td>
+                        <strong>{{ record.Vehicle_No }}</strong>
+                        {% if record.Model %}
+                        <br>
+                        <small>{{ record.Model }}</small>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ record.Slot_Number }}</td>
+                    <td>{{ record.Area_Name }}</td>
+
+                    <td>{{ record.Entry_Time }}</td>
+
+                    <td>
+                        {{ record.Exit_Time or 'Not exited' }}
+                    </td>
+
+                    <td>
+                        {{ record.Duration_Hours if record.Duration_Hours is not none else '-' }}
+                    </td>
+
+                    <td>
+                        {% if record.Amount is not none %}
+                        ₹{{ "%.2f"|format(record.Amount) }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if record.Record_Status == 'Active' %}
+                        <span class="status-badge status-occupied">
+                            Active
+                        </span>
+                        {% else %}
+                        <span class="status-badge status-available">
+                            Completed
+                        </span>
+                        {% endif %}
+                    </td>
+
+                    {% if session.get('role') == 'Administrator' %}
+                    <td>{{ record.Owner_Name or 'N/A' }}</td>
+                    {% endif %}
+
+                    <td>
+                        {% if record.Record_Status == 'Active' %}
+                        <a
+                            href="{{ url_for('exit_vehicle', record_id=record.Record_ID) }}"
+                            class="btn btn-small btn-primary"
+                        >
+                            Process Exit
+                        </a>
+                        {% else %}
+                        <span class="text-muted">Completed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <h3>No Parking Records Found</h3>
+        <p>Parking records will appear here after vehicle entry.</p>
+
+        <a href="{{ url_for('entry') }}" class="btn btn-primary">
+            Register Vehicle Entry
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

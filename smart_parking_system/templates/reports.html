@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Reports | Smart Parking System{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Parking Reports</h1>
+        <p>Monitor parking activity, slot availability, and revenue.</p>
+    </div>
+</div>
+
+<section class="content-section">
+    <div class="section-header">
+        <h2>Parking Summary</h2>
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <span>Total Records</span>
+                <h2>{{ summary.total_records or 0 }}</h2>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <span>Active Records</span>
+                <h2>{{ summary.active_records or 0 }}</h2>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <span>Completed Records</span>
+                <h2>{{ summary.completed_records or 0 }}</h2>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-info">
+                <span>Total Revenue</span>
+                <h2>₹{{ "%.2f"|format(summary.total_revenue or 0) }}</h2>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="content-section">
+    <div class="section-header">
+        <h2>Area-wise Parking Occupancy</h2>
+        <span class="record-count">
+            Total Areas: {{ area_report|length }}
+        </span>
+    </div>
+
+    {% if area_report %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Parking Area</th>
+                    <th>Total Slots</th>
+                    <th>Available Slots</th>
+                    <th>Occupied Slots</th>
+                    <th>Maintenance Slots</th>
+                    <th>Occupancy Rate</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for area in area_report %}
+                <tr>
+                    <td><strong>{{ area.Area_Name }}</strong></td>
+
+                    <td>{{ area.Total_Slots or 0 }}</td>
+
+                    <td>
+                        <span class="status-badge status-available">
+                            {{ area.Available_Slots or 0 }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status-badge status-occupied">
+                            {{ area.Occupied_Slots or 0 }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status-badge status-maintenance">
+                            {{ area.Maintenance_Slots or 0 }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if area.Total_Slots and area.Total_Slots > 0 %}
+                            {{ "%.1f"|format(
+                                (area.Occupied_Slots / area.Total_Slots) * 100
+                            ) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <h3>No Area Reports Available</h3>
+        <p>Add parking areas and slots to generate occupancy reports.</p>
+    </div>
+    {% endif %}
+</section>
+
+<section class="content-section">
+    <div class="info-card">
+        <h3>Report Information</h3>
+        <ul>
+            <li>Total Records represents all recorded parking sessions.</li>
+            <li>Active Records represents vehicles currently parked.</li>
+            <li>Completed Records represents vehicles that have exited.</li>
+            <li>Total Revenue represents recorded payment amounts.</li>
+            <li>Occupancy Rate is calculated using occupied slots divided by total slots.</li>
+        </ul>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,204 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Smart Parking System{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Welcome, {{ session.get('name') }}. Here's your parking overview.</p>
+    </div>
+
+    <span class="role-label">{{ session.get('role') }}</span>
+</div>
+
+<!-- Statistics Cards -->
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon">P</div>
+        <div>
+            <p>Total Parking Areas</p>
+            <h2>{{ stats.total_areas or 0 }}</h2>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">S</div>
+        <div>
+            <p>Total Parking Slots</p>
+            <h2>{{ stats.total_slots or 0 }}</h2>
+        </div>
+    </div>
+
+    <div class="stat-card available-card">
+        <div class="stat-icon">A</div>
+        <div>
+            <p>Available Slots</p>
+            <h2>{{ stats.available_slots or 0 }}</h2>
+        </div>
+    </div>
+
+    <div class="stat-card occupied-card">
+        <div class="stat-icon">O</div>
+        <div>
+            <p>Occupied Slots</p>
+            <h2>{{ stats.occupied_slots or 0 }}</h2>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">V</div>
+        <div>
+            <p>Registered Vehicles</p>
+            <h2>{{ stats.total_vehicles or 0 }}</h2>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">R</div>
+        <div>
+            <p>Active Parking Records</p>
+            <h2>{{ stats.active_records or 0 }}</h2>
+        </div>
+    </div>
+
+</div>
+
+<!-- Quick Actions -->
+
+<section class="content-section">
+
+    <div class="section-header">
+        <h2>Quick Actions</h2>
+    </div>
+
+    <div class="quick-actions">
+
+        <a href="{{ url_for('areas') }}" class="action-card">
+            <span class="action-icon">P</span>
+            <h3>View Areas</h3>
+            <p>Explore parking locations</p>
+        </a>
+
+        <a href="{{ url_for('slots') }}" class="action-card">
+            <span class="action-icon">S</span>
+            <h3>View Slots</h3>
+            <p>Check parking availability</p>
+        </a>
+
+        <a href="{{ url_for('vehicles') }}" class="action-card">
+            <span class="action-icon">V</span>
+            <h3>Manage Vehicles</h3>
+            <p>Register and view vehicles</p>
+        </a>
+
+        <a href="{{ url_for('entry') }}" class="action-card">
+            <span class="action-icon">E</span>
+            <h3>Vehicle Entry</h3>
+            <p>Allocate a parking slot</p>
+        </a>
+
+        <a href="{{ url_for('records') }}" class="action-card">
+            <span class="action-icon">R</span>
+            <h3>Parking Records</h3>
+            <p>View parking history</p>
+        </a>
+
+        <a href="{{ url_for('payments') }}" class="action-card">
+            <span class="action-icon">₹</span>
+            <h3>Payments</h3>
+            <p>View payment details</p>
+        </a>
+
+    </div>
+
+</section>
+
+<!-- Recent Parking Records -->
+
+<section class="content-section">
+
+    <div class="section-header">
+        <h2>Recent Parking Records</h2>
+
+        <a href="{{ url_for('records') }}" class="text-link">
+            View All
+        </a>
+    </div>
+
+    {% if recent_records %}
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Record ID</th>
+                    <th>Vehicle Number</th>
+                    <th>Parking Area</th>
+                    <th>Slot Number</th>
+                    {% if session.get('role') == 'Administrator' %}
+                        <th>Owner</th>
+                    {% endif %}
+                    <th>Entry Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for record in recent_records %}
+
+                <tr>
+                    <td>#{{ record.Record_ID }}</td>
+                    <td>{{ record.Vehicle_No }}</td>
+                    <td>{{ record.Area_Name }}</td>
+                    <td>{{ record.Slot_Number }}</td>
+
+                    {% if session.get('role') == 'Administrator' %}
+                        <td>{{ record.Owner_Name }}</td>
+                    {% endif %}
+
+                    <td>{{ record.Entry_Time }}</td>
+
+                    <td>
+                        {% if record.Record_Status == 'Active' %}
+                            <span class="status-badge status-occupied">
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="status-badge status-available">
+                                Completed
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>No Parking Records Yet</h3>
+            <p>Parking records will appear here when vehicles enter the parking area.</p>
+            <a href="{{ url_for('entry') }}" class="btn btn-primary">
+                Record Vehicle Entry
+            </a>
+        </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

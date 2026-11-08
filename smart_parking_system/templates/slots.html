@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Parking Slots | Smart Parking System{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Parking Slots</h1>
+        <p>View parking slot availability and manage slot status.</p>
+    </div>
+</div>
+
+
+    {% if session.get('role') == 'Administrator' %}
+
+<section class="content-section">
+
+    <div class="section-header">
+        <h2>Parking Slot Management</h2>
+        <span class="record-count">Bulk Slot Generation</span>
+    </div>
+
+    <div class="form-card">
+        <form method="POST" action="{{ url_for('bulk_add_slots') }}">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="bulk_area_id">Parking Area</label>
+                    <select id="bulk_area_id" name="area_id" required>
+                        <option value="">Select Parking Area</option>
+                        {% for area in areas %}
+                        <option value="{{ area.Area_ID }}">
+                            {{ area.Area_Name }} (Capacity: {{ area.Capacity }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Number of Slots</label>
+                    <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                        min="1"
+                        placeholder="Enter number of slots"
+                        required
+                    >
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Generate Parking Slots
+            </button>
+
+        </form>
+    </div>
+
+</section>
+
+{% endif %}
+
+<section class="content-section">
+    <div class="section-header">
+        <h2>All Parking Slots</h2>
+        <span class="record-count">
+            Total Slots: {{ slots|length }}
+        </span>
+    </div>
+
+    {% if slots %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Slot ID</th>
+                    <th>Slot Number</th>
+                    <th>Parking Area</th>
+                    <th>Status</th>
+                    {% if session.get('role') == 'Administrator' %}
+                    <th>Manage Status</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for slot in slots %}
+                <tr>
+                    <td>{{ slot.Slot_ID }}</td>
+                    <td><strong>{{ slot.Slot_Number }}</strong></td>
+                    <td>{{ slot.Area_Name }}</td>
+
+                    <td>
+                        {% if slot.Slot_Status == 'Available' %}
+                        <span class="status-badge status-available">
+                            Available
+                        </span>
+                        {% elif slot.Slot_Status == 'Occupied' %}
+                        <span class="status-badge status-occupied">
+                            Occupied
+                        </span>
+                        {% else %}
+                        <span class="status-badge status-maintenance">
+                            Maintenance
+                        </span>
+                        {% endif %}
+                    </td>
+
+                    {% if session.get('role') == 'Administrator' %}
+                    <td>
+                        {% if slot.Slot_Status != 'Occupied' %}
+                        <form
+                            method="POST"
+                            action="{{ url_for('update_slot_status', slot_id=slot.Slot_ID) }}"
+                            class="inline-form"
+                        >
+                            <select name="status" required>
+                                <option value="Available"
+                                    {% if slot.Slot_Status == 'Available' %}selected{% endif %}>
+                                    Available
+                                </option>
+
+                                <option value="Maintenance"
+                                    {% if slot.Slot_Status == 'Maintenance' %}selected{% endif %}>
+                                    Maintenance
+                                </option>
+                            </select>
+
+                            <button type="submit" class="btn btn-small btn-primary">
+                                Update
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted">
+                            Slot currently in use
+                        </span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+        <h3>No Parking Slots Found</h3>
+        <p>
+            {% if session.get('role') == 'Administrator' %}
+            Add parking slots using the form above.
+            {% else %}
+            No parking slots have been added yet.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

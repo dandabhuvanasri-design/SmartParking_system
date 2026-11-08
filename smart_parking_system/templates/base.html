@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Smart Parking System{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+
+<body>
+
+    {% if session.get('user_id') %}
+
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-icon">P</span>
+            <span>Smart Parking</span>
+        </div>
+
+        <div class="user-info">
+            <span>{{ session.get('name') }}</span>
+            <span class="role-label">{{ session.get('role') }}</span>
+        </div>
+    </header>
+
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-heading">MAIN MENU</div>
+
+            <nav class="navigation">
+
+                <a href="{{ url_for('dashboard') }}"
+                   class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('areas') }}"
+                   class="{% if request.endpoint == 'areas' %}active{% endif %}">
+                    Parking Areas
+                </a>
+
+                <a href="{{ url_for('slots') }}"
+                   class="{% if request.endpoint in ['slots', 'update_slot_status'] %}active{% endif %}">
+                    Parking Slots
+                </a>
+
+                <a href="{{ url_for('vehicles') }}"
+                   class="{% if request.endpoint == 'vehicles' %}active{% endif %}">
+                    Vehicles
+                </a>
+
+                <a href="{{ url_for('entry') }}"
+                   class="{% if request.endpoint == 'entry' %}active{% endif %}">
+                    Vehicle Entry
+                </a>
+
+                <a href="{{ url_for('records') }}"
+                   class="{% if request.endpoint == 'records' %}active{% endif %}">
+                    Parking Records
+                </a>
+
+                <a href="{{ url_for('payments') }}"
+                   class="{% if request.endpoint == 'payments' %}active{% endif %}">
+                    Payments
+                </a>
+
+                {% if session.get('role') == 'Administrator' %}
+
+                <div class="sidebar-heading">ADMINISTRATION</div>
+
+                <a href="{{ url_for('rates') }}"
+                   class="{% if request.endpoint == 'rates' %}active{% endif %}">
+                    Manage Rates
+                </a>
+
+                <a href="{{ url_for('reports') }}"
+                   class="{% if request.endpoint == 'reports' %}active{% endif %}">
+                    Reports
+                </a>
+
+                {% endif %}
+
+            </nav>
+
+            <div class="sidebar-bottom">
+                <a href="{{ url_for('logout') }}" class="logout-link">
+                    Logout
+                </a>
+            </div>
+
+        </aside>
+
+        <main class="main-content">
+
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                                <button type="button"
+                                        class="alert-close"
+                                        onclick="this.parentElement.remove()">
+                                    &times;
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            {% block content %}
+            {% endblock %}
+
+        </main>
+
+    </div>
+
+    {% else %}
+
+    <div class="auth-page">
+
+        
+<div class="auth-brand">
+    <span class="brand-mark">
+        <span class="parking-line"></span>
+        <span class="parking-line"></span>
+        <span class="parking-line"></span>
+        <span class="parking-dot"></span>
+    </span>
+
+    <span class="brand-name">
+        Smart Parking
+        <span class="brand-accent">SYSTEM</span>
+    </span>
+</div>
+
+
+        <div class="auth-content">
+
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            {% block auth_content %}
+            {% endblock %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</body>
+</html>

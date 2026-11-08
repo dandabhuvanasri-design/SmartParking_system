@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Vehicle Entry | Smart Parking System{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Vehicle Entry</h1>
+        <p>Allocate an available parking slot to a registered vehicle.</p>
+    </div>
+</div>
+
+<section class="content-section">
+    <div class="section-header">
+        <h2>Allocate Parking Slot</h2>
+    </div>
+
+    <div class="form-card">
+        {% if vehicles and slots %}
+
+        <form method="POST" action="{{ url_for('entry') }}">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="vehicle_no">Select Vehicle</label>
+
+                    <select id="vehicle_no" name="vehicle_no" required>
+                        <option value="">Select a Vehicle</option>
+
+                        {% for vehicle in vehicles %}
+                        <option value="{{ vehicle.Vehicle_No }}">
+                            {{ vehicle.Vehicle_No }} - {{ vehicle.Model }}
+                            ({{ vehicle.Vehicle_Type }})
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="slot_id">Select Available Parking Slot</label>
+
+                    <select id="slot_id" name="slot_id" required>
+                        <option value="">Select a Parking Slot</option>
+
+                        {% for slot in slots %}
+                        <option value="{{ slot.Slot_ID }}">
+                            {{ slot.Slot_Number }} - {{ slot.Area_Name }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Confirm Vehicle Entry
+            </button>
+
+        </form>
+
+        {% else %}
+
+        <div class="empty-state">
+            <h3>Unable to Allocate Parking</h3>
+
+            {% if not vehicles %}
+            <p>No registered vehicles found. Register a vehicle before proceeding.</p>
+            <a href="{{ url_for('vehicles') }}" class="btn btn-primary">
+                Register Vehicle
+            </a>
+
+            {% elif not slots %}
+            <p>No available parking slots found. Please check parking slot availability.</p>
+            <a href="{{ url_for('slots') }}" class="btn btn-primary">
+                View Parking Slots
+            </a>
+            {% endif %}
+        </div>
+
+        {% endif %}
+    </div>
+</section>
+
+<section class="content-section">
+    <div class="info-card">
+        <h3>Important Information</h3>
+        <ul>
+            <li>Only registered vehicles can be allocated parking slots.</li>
+            <li>Only available parking slots can be selected.</li>
+            <li>A vehicle with an active parking record cannot enter again.</li>
+            <li>The system updates the slot status after successful allocation.</li>
+        </ul>
+    </div>
+</section>
+
+{% endblock %}

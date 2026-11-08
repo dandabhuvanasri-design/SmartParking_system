@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Vehicle Exit | Smart Parking System{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Vehicle Exit</h1>
+        <p>Review parking details and process vehicle exit.</p>
+    </div>
+</div>
+
+<section class="content-section">
+    <div class="section-header">
+        <h2>Parking Session Details</h2>
+    </div>
+
+    <div class="form-card">
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>Record ID</label>
+                <p><strong>#{{ record.Record_ID }}</strong></p>
+            </div>
+
+            <div class="form-group">
+                <label>Vehicle Registration Number</label>
+                <p><strong>{{ record.Vehicle_No }}</strong></p>
+            </div>
+
+            <div class="form-group">
+                <label>Parking Slot</label>
+                <p><strong>{{ record.Slot_Number }}</strong></p>
+            </div>
+
+            <div class="form-group">
+                <label>Parking Area</label>
+                <p><strong>{{ record.Area_Name }}</strong></p>
+            </div>
+
+            <div class="form-group">
+                <label>Entry Time</label>
+                <p><strong>{{ record.Entry_Time }}</strong></p>
+            </div>
+
+            <div class="form-group">
+                <label>Current Status</label>
+                <p>
+                    <span class="status-badge status-occupied">
+                        Active
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div class="section-header">
+            <h2>Complete Vehicle Exit</h2>
+        </div>
+
+        <form method="POST"
+              action="{{ url_for('exit_vehicle', record_id=record.Record_ID) }}">
+
+            <div class="form-group">
+                <label for="payment_method">Select Payment Method</label>
+
+                <select id="payment_method" name="payment_method" required>
+                    <option value="">Select Payment Method</option>
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Card</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <p class="form-note">
+                The system calculates the parking duration and applicable
+                charges when you confirm the vehicle exit.
+            </p>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    Confirm Exit and Payment
+                </button>
+
+                <a href="{{ url_for('records') }}" class="btn btn-outline">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</section>
+
+{% endblock %}
